@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "420445827226",
+    "project_id": "expensemanagerflutter",
+    "storage_bucket": "expensemanagerflutter.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:420445827226:android:bd14ea6eb7639fd056ef23",
+        "android_client_info": {
+          "package_name": "com.sdew021.expense_manager"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "420445827226-8uje57a0hoqv8kido4gsas280gn3i3nr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sdew021.expense_manager",
+            "certificate_hash": "e570eeef17b99eef3719e06f99a63075b286e99f"
+          }
+        },
+        {
+          "client_id": "420445827226-bp5b176thhcp0mij8e03gvdfsm1tpt1f.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyChfvTu6Uvay-PWdklKNsNrecE0e6E27H8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "420445827226-bp5b176thhcp0mij8e03gvdfsm1tpt1f.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class TransactionAccount extends StatefulWidget {
@@ -105,52 +106,14 @@ class _TransactionAccountState extends State<TransactionAccount> {
                   child: new Text('SUBMIT'),
                   onPressed: () => {
                     if (_controller.text.trim() == "")
-                      {
-                        _showSnackBar(context,"Amount cannot be empty")
-                      }
+                      {_showSnackBar(context, "Amount cannot be empty")}
                     else if (_character == SingingCharacter.CREDIT)
                       {
-                        showDialog<void>(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              title: const Text('Thanks!'),
-                              content: Text(
-                                  'You credited "${_controller.text}" to account.'),
-                              actions: <Widget>[
-                                FlatButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                    Navigator.pop(context);
-                                  },
-                                  child: const Text('OK'),
-                                ),
-                              ],
-                            );
-                          },
-                        ),
+                        creditToAccount(int.parse(_controller.text), context),
                       }
                     else
                       {
-                        showDialog<void>(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              title: const Text('Thanks!'),
-                              content: Text(
-                                  'You debited "${_controller.text}" to account.'),
-                              actions: <Widget>[
-                                FlatButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                    Navigator.pop(context);
-                                  },
-                                  child: const Text('OK'),
-                                ),
-                              ],
-                            );
-                          },
-                        ),
+                        debitToAccount(int.parse(_controller.text), context),
                       }
                   },
                   color: Colors.blue,
@@ -164,30 +127,73 @@ class _TransactionAccountState extends State<TransactionAccount> {
   }
 }
 
+creditToAccount(int value, BuildContext context) {
+  FirebaseFirestore.instance
+      .collection('sdew021')
+      .doc('${DateTime.now().year}${DateTime.now().month}')
+      .set({
+        'accountCredit': FieldValue.arrayUnion([value])
+      },
+        SetOptions(merge: true),)
+      .then((x) => {
+            print("Credited"),
+            showDialog<void>(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: const Text('Thanks!'),
+                  content: Text('You credited "$value" to account.'),
+                  actions: <Widget>[
+                    FlatButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        Navigator.pop(context);
+                      },
+                      child: const Text('OK'),
+                    ),
+                  ],
+                );
+              },
+            ),
+          })
+      .catchError((error) => print("Failed to credit: $error"));
+}
+
+debitToAccount(int value, BuildContext context) {
+  FirebaseFirestore.instance
+      .collection('sdew021')
+      .doc('${DateTime.now().year}${DateTime.now().month}')
+      .set({
+        'accountDebit': FieldValue.arrayUnion([value])
+      },
+        SetOptions(merge: true),)
+      .then((x) => {
+            print("Debited"),
+            showDialog<void>(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: const Text('Thanks!'),
+                  content: Text('You debited "$value" to account.'),
+                  actions: <Widget>[
+                    FlatButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        Navigator.pop(context);
+                      },
+                      child: const Text('OK'),
+                    ),
+                  ],
+                );
+              },
+            ),
+          })
+      .catchError((error) => print("Failed to debit: $error"));
+}
+
 void _showSnackBar(BuildContext context, String message) {
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
     content: Text(message),
     duration: const Duration(milliseconds: 1000),
   ));
 }
-
-//TO MAKE USE WHEN SUBMITTED
-// onSubmitted: (String value) async {
-//               await showDialog<void>(
-//                 context: context,
-//                 builder: (BuildContext context) {
-//                   return AlertDialog(
-//                     title: const Text('Thanks!'),
-//                     content: Text('You typed "$value".'),
-//                     actions: <Widget>[
-//                       FlatButton(
-//                         onPressed: () {
-//                           Navigator.pop(context);
-//                         },
-//                         child: const Text('OK'),
-//                       ),
-//                     ],
-//                   );
-//                 },
-//               );
-//             },

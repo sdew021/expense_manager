@@ -1,9 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:expense_manager/screens/AccountScreen.dart';
 import 'package:expense_manager/screens/SummaryScreen.dart';
 import 'package:expense_manager/screens/TransactionAccount.dart';
 import 'package:expense_manager/screens/TransactionWallet.dart';
 import 'package:expense_manager/screens/WalletScreen.dart';
 import 'package:fab_circular_menu/fab_circular_menu.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -13,11 +15,59 @@ void main() {
 class MyApp extends StatelessWidget {
   static const String _title = 'Expense Manager';
 
+  final Future<FirebaseApp> _initialization = Firebase.initializeApp();
+  // @override
+  // Widget build(BuildContext context) {
+  //   return MaterialApp(
+  //     title: _title,
+  //     home: MyStatefulWidget(),
+  //   );
+  // }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      // Initialize FlutterFire:
+      future: _initialization,
+      builder: (context, snapshot) {
+        // Check for errors
+        if (snapshot.hasError) {
+          return SomethingWentWrong();
+        }
+
+        // Once complete, show your application
+        if (snapshot.connectionState == ConnectionState.done) {
+          return MaterialApp(
+            title: _title,
+            home: MyStatefulWidget(),
+          );
+        }
+
+        // Otherwise, show something whilst waiting for initialization to complete
+        return Loading();
+      },
+    );
+  }
+}
+
+class SomethingWentWrong extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: _title,
-      home: MyStatefulWidget(),
+      home: Container(
+        child: Text("Error!! Something Went Wrong"),
+      ),
+    );
+  }
+}
+
+class Loading extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Container(
+        child: Text("Loading!!!"),
+      ),
     );
   }
 }
@@ -107,8 +157,12 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
           fabMargin: const EdgeInsets.all(16.0),
           animationDuration: const Duration(milliseconds: 500),
           animationCurve: Curves.easeInOutCirc,
-          onDisplayChange: (isOpen) {
+          onDisplayChange: (isOpen) async {
             //_showSnackBar(context, "The menu is ${isOpen ? "open" : "closed"}");
+            if (fabKey.currentState.isOpen) {
+              await Future.delayed(Duration(seconds: 2));
+              fabKey.currentState.close();
+            }
           },
           children: <Widget>[
             RawMaterialButton(
@@ -139,11 +193,11 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
             RawMaterialButton(
               onPressed: () {
                 // _showSnackBar(context, "You pressed close.");
-                fabKey.currentState.close();
+                updateAccounts(context);
               },
               shape: CircleBorder(),
               padding: const EdgeInsets.all(24.0),
-              child: Icon(Icons.close, color: Colors.white),
+              child: Icon(Icons.update, color: Colors.white),
             )
           ],
         ),
@@ -176,4 +230,66 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   //     duration: const Duration(milliseconds: 1000),
   //   ));
   // }
+}
+
+void updateAccounts(BuildContext context) {
+  FirebaseFirestore.instance
+      .collection('sdew021')
+      .doc('${DateTime.now().year}${DateTime.now().month}')
+      .set(
+        {'accountBalance': 0},
+        SetOptions(merge: true),
+      )
+      .then((x) => {
+            print("Init"),
+            showDialog<void>(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: const Text('Thanks!'),
+                  content: Text('Account Initialized'),
+                  actions: <Widget>[
+                    FlatButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        // Navigator.pop(context);
+                      },
+                      child: const Text('OK'),
+                    ),
+                  ],
+                );
+              },
+            ),
+          })
+      .catchError((error) => print("Failed to init: $error"));
+
+  FirebaseFirestore.instance
+      .collection('sdew021')
+      .doc('${DateTime.now().year}${DateTime.now().month}')
+      .set(
+        {'walletBalance': 0},
+        SetOptions(merge: true),
+      )
+      .then((x) => {
+            print("Init"),
+            showDialog<void>(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: const Text('Thanks!'),
+                  content: Text('Wallet Initialized'),
+                  actions: <Widget>[
+                    FlatButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        // Navigator.pop(context);
+                      },
+                      child: const Text('OK'),
+                    ),
+                  ],
+                );
+              },
+            ),
+          })
+      .catchError((error) => print("Failed to init: $error"));
 }
